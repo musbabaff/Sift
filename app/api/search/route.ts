@@ -15,7 +15,7 @@ async function getKnownTerms(): Promise<string[]> {
     const { data } = await supabase
       .from('entity_stats')
       .select('term')
-      .eq('scope', 'global')
+      .like('scope', 'global%')
       .order('count', { ascending: false })
       .limit(200);
 
