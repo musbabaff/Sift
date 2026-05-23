@@ -110,77 +110,79 @@ interface ScriptMessage {
   body: any;
 }
 
-const BOT_FLOW: ScriptMessage[] = [
-  {
-    role: "bot",
-    kind: "system",
-    body: {
-      title: "@SiftNBot",
-      sub: "Hybrid news search · 20,915 articles · AZ / RU / EN"
-    }
-  },
-  {
-    role: "bot",
-    kind: "text",
-    body: (
-      <>
-        <p className="mb-2"><strong>Welcome to Sift AI News Intelligence.</strong></p>
-        <p className="mb-2">Type any search request in plain English, Azerbaijani or Russian. I’ll return the most relevant news with sources, dates and real-time hybrid scores.</p>
-        <p className="tg-muted">Tip: include a date range or entity — e.g. <em>“SOCAR news on May 14”</em>.</p>
-      </>
-    ),
-  },
-  { role: "user", kind: "text", body: "SOCAR news on May 14" },
-  {
-    role: "bot",
-    kind: "interpret",
-    body: {
-      topic: "SOCAR",
-      date: "May 14, 2026",
-      lang: "any",
-      explain: "Searching 20,915 articles..."
-    }
-  },
-  {
-    role: "bot",
-    kind: "card",
-    body: {
-      score: 96,
-      lang: "az",
-      source: "socar.az",
-      date: "May 14",
-      title: "SOCAR Türkiyədə yeni neft-kimya kompleksinin inşasına başladı",
-      summary: "Petkim sahəsində 4.2 milyard dollarlıq genişlənmə layihəsinin təməlqoyma mərasimi keçirilib. Tikinti işləri 2029-cu ilədək tamamlanacaq.",
-      kind: "Exact",
-      kindNote: "Exact mention · Date match",
+function getBotFlow(t: (key: string) => string): ScriptMessage[] {
+  return [
+    {
+      role: "bot",
+      kind: "system",
+      body: {
+        title: "@SiftNBot",
+        sub: t('bot_sim_sub')
+      }
     },
-  },
-  {
-    role: "bot",
-    kind: "card",
-    body: {
-      score: 88,
-      lang: "en",
-      source: "ft.com",
-      date: "May 11",
-      title: "Azerbaijani gas exports to Europe rose 12% YoY in April",
-      summary: "Pipeline volumes via TAP reached a record 2.4 bcm, supported by Italian and Bulgarian demand, according to SOCAR figures.",
-      kind: "Semantic",
-      kindNote: "SOCAR-related · gas exports",
+    {
+      role: "bot",
+      kind: "text",
+      body: (
+        <>
+          <p className="mb-2"><strong>{t('bot_sim_welcome')}</strong></p>
+          <p className="mb-2">{t('bot_sim_welcome_desc')}</p>
+          <p className="tg-muted">{t('bot_sim_welcome_tip')}</p>
+        </>
+      ),
     },
-  },
-  {
-    role: "bot",
-    kind: "actions",
-    body: [
-      { label: "📄 More results", primary: true },
-      { label: "🏷️ Top entities" },
-      { label: "🔁 New search" },
-    ],
-  },
-];
+    { role: "user", kind: "text", body: t('bot_sim_query') },
+    {
+      role: "bot",
+      kind: "interpret",
+      body: {
+        topic: "SOCAR",
+        date: t('bot_sim_card1_date'),
+        lang: "any",
+        explain: t('bot_sim_interp_explain')
+      }
+    },
+    {
+      role: "bot",
+      kind: "card",
+      body: {
+        score: 96,
+        lang: "az",
+        source: "socar.az",
+        date: t('bot_sim_card1_date'),
+        title: t('bot_sim_card1_title'),
+        summary: t('bot_sim_card1_summary'),
+        kind: t('bot_sim_card1_kind'),
+        kindNote: t('bot_sim_card1_kindnote'),
+      },
+    },
+    {
+      role: "bot",
+      kind: "card",
+      body: {
+        score: 88,
+        lang: "en",
+        source: "ft.com",
+        date: t('bot_sim_card2_date'),
+        title: t('bot_sim_card2_title'),
+        summary: t('bot_sim_card2_summary'),
+        kind: t('bot_sim_card2_kind'),
+        kindNote: t('bot_sim_card2_kindnote'),
+      },
+    },
+    {
+      role: "bot",
+      kind: "actions",
+      body: [
+        { label: "📄 " + t('more_results_btn'), primary: true },
+        { label: "🏷️ " + t('top_entities_btn') },
+        { label: "🔁 " + t('new_search_btn') },
+      ],
+    },
+  ];
+}
 
-function TelegramBubble({ msg, idx }: { msg: ScriptMessage; idx: number }) {
+function TelegramBubble({ msg, idx, t }: { msg: ScriptMessage; idx: number; t: (key: string) => string }) {
   const cls = "tg-bubble tg-bubble-" + msg.role + " tg-bubble-" + msg.kind;
 
   if (msg.kind === "system") {
@@ -203,15 +205,15 @@ function TelegramBubble({ msg, idx }: { msg: ScriptMessage; idx: number }) {
       <div className={`${cls} mb-3`} style={{ animationDelay: `${idx * 80}ms` }}>
         <div className="tg-interpret">
           <div className="tg-interpret-row">
-            <span className="tg-interpret-key">Topic</span>
+            <span className="tg-interpret-key">{t('bot_sim_interp_topic')}</span>
             <span className="tg-interpret-val">{c.topic}</span>
           </div>
           <div className="tg-interpret-row">
-            <span className="tg-interpret-key">Date</span>
+            <span className="tg-interpret-key">{t('bot_sim_interp_date')}</span>
             <span className="tg-interpret-val">{c.date}</span>
           </div>
           <div className="tg-interpret-row">
-            <span className="tg-interpret-key">Lang</span>
+            <span className="tg-interpret-key">{t('bot_sim_interp_lang')}</span>
             <span className="tg-interpret-val">{c.lang}</span>
           </div>
           <div className="tg-interpret-foot mt-1 text-[11px] font-medium text-faint italic">{c.explain}</div>
@@ -242,8 +244,8 @@ function TelegramBubble({ msg, idx }: { msg: ScriptMessage; idx: number }) {
           <div className="tg-card-title text-sm font-sans font-bold text-ink mt-2" lang={c.lang}>{c.title}</div>
           <div className="tg-card-summary text-xs text-ink-2 leading-relaxed" lang={c.lang}>{c.summary}</div>
           <div className="tg-card-actions mt-1 flex flex-wrap gap-1.5">
-            <button className="tg-kbd text-[11px] px-2.5 py-1">Open Link</button>
-            <button className="tg-kbd text-[11px] px-2.5 py-1">Share</button>
+            <button className="tg-kbd text-[11px] px-2.5 py-1">{t('tg_open_link')}</button>
+            <button className="tg-kbd text-[11px] px-2.5 py-1">{t('tg_share')}</button>
           </div>
         </div>
       </div>
@@ -271,6 +273,7 @@ function TelegramBubble({ msg, idx }: { msg: ScriptMessage; idx: number }) {
 
 export default function TelegramPage() {
   const { t } = useLanguage();
+  const BOT_FLOW = getBotFlow(t);
   const [visible, setVisible] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [typing, setTyping] = useState(false);
@@ -300,7 +303,7 @@ export default function TelegramPage() {
     };
     const t = setTimeout(tick, 700);
     return () => { cancelled = true; clearTimeout(t); };
-  }, []);
+  }, [BOT_FLOW.length]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -347,22 +350,22 @@ export default function TelegramPage() {
           <div className="tg-copy-row">
             <div className="tg-copy-dot" />
             <div>
-              <div className="tg-copy-row-h font-sans font-bold text-ink">Təbii Dil Axtarışları (Conversational NLP)</div>
-              <div className="tg-copy-row-b text-muted">Type simple queries (AZ/RU/EN) like "SOCAR news on May 14" without strict syntax rules.</div>
+              <div className="tg-copy-row-h font-sans font-bold text-ink">{t('bot_features_nlp_title')}</div>
+              <div className="tg-copy-row-b text-muted">{t('bot_features_nlp_desc')}</div>
             </div>
           </div>
           <div className="tg-copy-row">
             <div className="tg-copy-dot" />
             <div>
-              <div className="tg-copy-row-h font-sans font-bold text-ink">Premium HTML Response Cards</div>
-              <div className="tg-copy-row-b text-muted">Delivers clean, clickable headers, source labels, and precise hybrid score badges.</div>
+              <div className="tg-copy-row-h font-sans font-bold text-ink">{t('bot_features_cards_title')}</div>
+              <div className="tg-copy-row-b text-muted">{t('bot_features_cards_desc')}</div>
             </div>
           </div>
           <div className="tg-copy-row">
             <div className="tg-copy-dot" />
             <div>
-              <div className="tg-copy-row-h font-sans font-bold text-ink">Stateless Pagination Buttons</div>
-              <div className="tg-copy-row-b text-muted">Page through results dynamically using optimized under-64-byte callbacks (ents / more).</div>
+              <div className="tg-copy-row-h font-sans font-bold text-ink">{t('bot_features_paging_title')}</div>
+              <div className="tg-copy-row-b text-muted">{t('bot_features_paging_desc')}</div>
             </div>
           </div>
         </div>
@@ -373,12 +376,12 @@ export default function TelegramPage() {
             rel="noopener noreferrer" 
             className="primary-btn flex items-center gap-2"
           >
-            <span>Open @SiftNBot</span>
+            <span>{t('bot_open_btn')}</span>
             <Send className="w-4 h-4" />
           </a>
           <button className="ghost-btn flex items-center gap-2" onClick={restart}>
             <RotateCcw className="w-4 h-4" />
-            <span>Replay demo</span>
+            <span>{t('bot_replay_btn')}</span>
           </button>
         </div>
       </div>
@@ -394,7 +397,7 @@ export default function TelegramPage() {
             <div className="tg-header-info">
               <div className="tg-header-name text-ink font-semibold">SiftNBot</div>
               <div className="tg-header-status flex items-center gap-1.5 text-xs text-muted">
-                <span className="tg-dot" /> bot · online
+                <span className="tg-dot" /> {t('tg_online')}
               </div>
             </div>
             <div className="tg-header-right text-muted font-bold">⋯</div>
@@ -402,9 +405,9 @@ export default function TelegramPage() {
 
           {/* Chat thread area */}
           <div className="tg-thread flex-1 p-4 overflow-y-auto flex flex-col gap-2" ref={scrollRef}>
-            <div className="tg-date mx-auto my-2">Today</div>
+            <div className="tg-date mx-auto my-2">{t('tg_today')}</div>
             {BOT_FLOW.slice(0, visible).map((m, i) => (
-              <TelegramBubble key={i} msg={m} idx={i} />
+              <TelegramBubble key={i} msg={m} idx={i} t={t} />
             ))}
             {typing && (
               <div className="tg-bubble tg-bubble-bot tg-bubble-typing">
@@ -419,7 +422,7 @@ export default function TelegramPage() {
           <div className="tg-composer bg-[var(--surface)] border-t border-hairline-2 px-3.5 py-2.5 flex items-center justify-between">
             <button className="tg-composer-btn"><Paperclip className="w-5 h-5 text-muted" /></button>
             <div className="tg-composer-input flex-1 bg-paper border border-hairline-2 rounded-full px-4 py-2 text-xs text-faint select-none">
-              Message
+              {t('tg_message_placeholder')}
             </div>
             <button className="tg-composer-btn tg-composer-send bg-ink text-paper w-8 h-8 rounded-full flex items-center justify-center">
               <Send className="w-3.5 h-3.5" />
