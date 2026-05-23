@@ -1,6 +1,14 @@
 # Sift — AI News Intelligence
 
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-pgvector-3FCF8E?logo=supabase)](https://supabase.com/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-412991?logo=openai)](https://openai.com/)
+
 > **"Sift the signal from the noise."**
+
+🌍 **Language**: **🇬🇧 English** · [🇦🇿 Azərbaycan dili](README_AZ.md)
 
 Sift is a premium, high-speed, and intelligent news search and analysis platform built for the **Neurotime Hackathon Challenge**. It enables users to perform natural language semantic, keyword, and date-aware search across a dataset of ~20,915 multilingual news articles (Azerbaijani, Russian, and English) from May 10–15, 2026. 
 
