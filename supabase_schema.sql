@@ -232,3 +232,13 @@ values
   ('qaz ixracı', 'TOPIC', 487, 'all', 'global');
 
 
+-- =========================================================================
+-- 🤖 TELEGRAM BOT USER PREFERENCES
+-- =========================================================================
+
+-- Table to store user language preference for Telegram bot
+create table if not exists bot_user_preferences (
+  chat_id bigint primary key,
+  language_code varchar(10) default 'az',
+  updated_at timestamptz default now()
+);

@@ -13,8 +13,8 @@ export async function GET(req: NextRequest) {
 
     let query = supabase
       .from('entity_stats')
-      .select('term, type, count, language')
-      .eq('scope', 'global')
+      .select('term, type, count, language, scope')
+      .like('scope', 'global%')
       .order('count', { ascending: false })
       .limit(limit);
 
@@ -33,8 +33,24 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log(`[API Global Entities] Successfully retrieved ${stats?.length || 0} entities.`);
-    return NextResponse.json({ entities: stats || [] });
+    // Map stats to parse trend from scope
+    const entities = (stats || []).map((s: any) => {
+      let trend = 0;
+      if (s.scope && s.scope.includes(':')) {
+        const parts = s.scope.split(':');
+        trend = parseInt(parts[1], 10) || 0;
+      }
+      return {
+        term: s.term,
+        type: s.type,
+        count: s.count,
+        language: s.language,
+        trend
+      };
+    });
+
+    console.log(`[API Global Entities] Successfully retrieved ${entities.length} entities.`);
+    return NextResponse.json({ entities });
 
   } catch (error: any) {
     console.error('[API Global Entities Error] Unexpected exception occurred:', error);

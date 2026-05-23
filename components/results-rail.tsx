@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useLanguage } from './language-provider';
 import { SearchResult } from '@/lib/search/search';
 import { 
   Activity, 
@@ -54,6 +55,7 @@ const typeLabels = {
 };
 
 export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'live' | 'global'>('live');
   const [liveEntities, setLiveEntities] = useState<UIEntity[]>([]);
   const [globalEntities, setGlobalEntities] = useState<UIEntity[]>([]);
@@ -202,8 +204,8 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
     <aside className="rail">
       {/* Header section */}
       <div className="rail-head">
-        <span className="rail-eyebrow">Live analytics</span>
-        <h4 className="rail-title">{hasQuery ? "On this query" : "Corpus overview"}</h4>
+        <span className="rail-eyebrow">{t('live_analytics')}</span>
+        <h4 className="rail-title">{hasQuery ? t('on_this_query') : t('corpus_overview')}</h4>
         <div className="rail-sub">
           {hasQuery
             ? `${results.length} result${results.length === 1 ? "" : "s"}`
@@ -214,8 +216,8 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
       {/* Category mix */}
       <section className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
         <header className="flex justify-between items-baseline border-b border-[var(--hairline-2)] pb-2 mb-1">
-          <span className="text-[12.5px] font-semibold text-[var(--ink)]">Category mix</span>
-          <span className="text-[10px] text-[var(--muted)] font-mono">{cats.length} categories</span>
+          <span className="text-[12.5px] font-semibold text-[var(--ink)]">{t('category_mix')}</span>
+          <span className="text-[10px] text-[var(--muted)] font-mono">{cats.length} {t('categories_count')}</span>
         </header>
         <ul className="bar-list">
           {cats.slice(0, 5).map((c) => (
@@ -238,7 +240,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
       {/* Top sources */}
       <section className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
         <header className="flex justify-between items-baseline border-b border-[var(--hairline-2)] pb-2 mb-1">
-          <span className="text-[12.5px] font-semibold text-[var(--ink)]">Top sources</span>
+          <span className="text-[12.5px] font-semibold text-[var(--ink)]">{t('top_sources')}</span>
         </header>
         <ul className="src-list">
           {sources.map((s) => {
@@ -260,7 +262,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
       {/* Languages */}
       <section className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
         <header className="flex justify-between items-baseline border-b border-[var(--hairline-2)] pb-2 mb-1">
-          <span className="text-[12.5px] font-semibold text-[var(--ink)]">Languages</span>
+          <span className="text-[12.5px] font-semibold text-[var(--ink)]">{t('languages')}</span>
         </header>
         <div className="lang-bars">
           {(['az', 'ru', 'en'] as const).map((l) => {
@@ -292,7 +294,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
         <div className="flex items-center gap-2 border-b border-[var(--hairline-2)] pb-2.5">
           <Activity className="w-4 h-4 text-[var(--accent)]" />
           <h3 className="font-semibold text-xs tracking-wide uppercase text-[var(--ink)]">
-            Intelligence Feed
+            {t('intelligence_feed')}
           </h3>
         </div>
 
@@ -307,7 +309,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
                 : 'text-[var(--muted)] hover:text-[var(--ink)]'
             }`}
           >
-            In results
+            {t('in_results')}
           </button>
           <button
             type="button"
@@ -318,7 +320,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
                 : 'text-[var(--muted)] hover:text-[var(--ink)]'
             }`}
           >
-            All news
+            {t('all_news')}
           </button>
         </div>
 
@@ -342,11 +344,11 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
           <div className="text-center py-6 flex flex-col items-center gap-1.5">
             <Cpu className="w-7 h-7 text-[var(--faint)]" />
             <div>
-              <h4 className="text-[11px] font-bold text-[var(--ink-2)]">No entities extracted</h4>
+              <h4 className="text-[11px] font-bold text-[var(--ink-2)]">{t('no_entities')}</h4>
               <p className="text-[9px] text-[var(--muted)] leading-relaxed mt-0.5">
                 {activeTab === 'live' 
-                  ? 'Awaiting active queries to live tokenize.' 
-                  : 'Precomputations are loading.'}
+                  ? t('awaiting_queries') 
+                  : t('precomputations_loading')}
               </p>
             </div>
           </div>
@@ -396,7 +398,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
               </AnimatePresence>
             </div>
             <p className="text-[9.5px] text-[var(--muted)] leading-relaxed italic text-center border-t border-[var(--hairline-2)] pt-2 mt-1">
-              💡 Tip: Click any badge to filter queries instantly.
+              {t('tip_click_badge')}
             </p>
           </div>
         )}
@@ -406,9 +408,9 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
       <section className="rail-section-tip">
         <Cpu className="w-4 h-4 shrink-0 text-[var(--accent)]" />
         <div>
-          <div className="rail-tip-title text-[var(--accent-ink)]">Refine with operators</div>
+          <div className="rail-tip-title text-[var(--accent-ink)]">{t('refine_operators')}</div>
           <div className="rail-tip-body">
-            Try filters like <code>source:marja.az</code>, <code>lang:az</code>, <code>after:2026-05-12</code>
+            {t('refine_tip')} <code>source:marja.az</code>, <code>lang:az</code>, <code>after:2026-05-12</code>
           </div>
         </div>
       </section>

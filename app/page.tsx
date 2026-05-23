@@ -25,6 +25,7 @@ import {
 import { ParsedQuery } from '@/lib/search/parse-query';
 import { SearchResult } from '@/lib/search/search';
 import { ResultsRail } from '@/components/results-rail';
+import { useLanguage } from '@/components/language-provider';
 
 // ─── Utility Components ─────────────────────────────────────────────────────
 
@@ -98,10 +99,11 @@ function analyzeSentiment(title: string, content: string): 'positive' | 'negativ
 }
 
 function SentimentBadge({ sentiment }: { sentiment: 'positive' | 'negative' | 'neutral' }) {
+  const { t } = useLanguage();
   const config = {
-    positive: { icon: '↑', label: 'Positive', cls: 'sentiment-positive' },
-    negative: { icon: '↓', label: 'Negative', cls: 'sentiment-negative' },
-    neutral:  { icon: '—', label: 'Neutral',  cls: 'sentiment-neutral' },
+    positive: { icon: '↑', label: t('sentiment_positive'), cls: 'sentiment-positive' },
+    negative: { icon: '↓', label: t('sentiment_negative'), cls: 'sentiment-negative' },
+    neutral:  { icon: '—', label: t('sentiment_neutral'),  cls: 'sentiment-neutral' },
   };
   const c = config[sentiment];
   return (
@@ -140,46 +142,97 @@ function exportToCSV(results: SearchResult[], query: string) {
   URL.revokeObjectURL(url);
 }
 
+import { Language } from '@/components/language-provider';
+
 // ─── Rotating Search Suggestions ────────────────────────────────────────────
 
-const SUGGESTIONS = [
-  "SOCAR news on May 14",
-  "banking regulation",
-  "AccessBank xəbərləri",
-  "Qarabağ reconstruction",
-  "gas exports to Europe",
-  "taxes economy news",
-  "Mərkəzi Bank faiz dərəcəsi",
-  "risky financial news",
-  "PASHA Holding",
-  "festival Qəbələ",
-];
+const SUGGESTIONS: Record<Language, string[]> = {
+  az: [
+    "SOCAR xəbərləri 14 May",
+    "bank tənzimlənməsi",
+    "AccessBank xəbərləri",
+    "Qarabağın yenidən qurulması",
+    "Avropaya qaz ixracı",
+    "vergilər iqtisadiyyat xəbərləri",
+    "Mərkəzi Bank faiz dərəcəsi",
+    "riskli maliyyə xəbərləri",
+    "PAŞA Holdinq",
+    "Qəbələ caz festivalı",
+  ],
+  en: [
+    "SOCAR news on May 14",
+    "banking regulation",
+    "AccessBank news",
+    "Qarabağ reconstruction",
+    "gas exports to Europe",
+    "taxes economy news",
+    "Central Bank interest rate",
+    "risky financial news",
+    "PASHA Holding",
+    "Qəbələ jazz festival",
+  ],
+  ru: [
+    "новости SOCAR за 14 мая",
+    "банковское регулирование",
+    "новости AccessBank",
+    "восстановление Карабаха",
+    "экспорт газа в Европу",
+    "налоги новости экономики",
+    "процентная ставка Центробанка",
+    "рискованные финансовые новости",
+    "ПАША Холдинг",
+    "джазовый фестиваль в Габале",
+  ]
+};
 
-function useRotatingPlaceholder() {
+function useRotatingPlaceholder(lang: Language) {
   const [index, setIndex] = useState(0);
+  const list = SUGGESTIONS[lang] || SUGGESTIONS['en'];
+  
   useEffect(() => {
     const interval = setInterval(() => {
-      setIndex(prev => (prev + 1) % SUGGESTIONS.length);
+      setIndex(prev => (prev + 1) % list.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
-  return `Try: "${SUGGESTIONS[index]}"`;
+  }, [list.length]);
+
+  const prefix = lang === 'az' ? 'Yoxlayın: ' : lang === 'ru' ? 'Попробуйте: ' : 'Try: ';
+  return `${prefix}"${list[index]}"`;
 }
 
 // ─── Preset Chips ───────────────────────────────────────────────────────────
 
-const PRESET_CHIPS = [
-  { q: "SOCAR news on May 14",    label: "SOCAR news on May 14" },
-  { q: "banking regulation",      label: "Banking regulation" },
-  { q: "AccessBank news",         label: "AccessBank news" },
-  { q: "Qarabağ reconstruction",  label: "Qarabağ reconstruction" },
-  { q: "financial regulation",    label: "Financial regulation" },
-  { q: "gas exports Europe",      label: "Gas exports to Europe" },
-];
+const PRESET_CHIPS: Record<Language, { q: string; label: string }[]> = {
+  az: [
+    { q: "SOCAR xəbərləri 14 May",    label: "SOCAR xəbərləri 14 May" },
+    { q: "bank tənzimlənməsi",        label: "Bank tənzimlənməsi" },
+    { q: "AccessBank xəbərləri",      label: "AccessBank xəbərləri" },
+    { q: "Qarabağın yenidən qurulması",label: "Qarabağın bərpası" },
+    { q: "maliyyə tənzimlənməsi",     label: "Maliyyə tənzimlənməsi" },
+    { q: "Avropaya qaz ixracı",       label: "Avropaya qaz ixracı" },
+  ],
+  en: [
+    { q: "SOCAR news on May 14",    label: "SOCAR news on May 14" },
+    { q: "banking regulation",      label: "Banking regulation" },
+    { q: "AccessBank news",         label: "AccessBank news" },
+    { q: "Qarabağ reconstruction",  label: "Qarabağ reconstruction" },
+    { q: "financial regulation",    label: "Financial regulation" },
+    { q: "gas exports Europe",      label: "Gas exports to Europe" },
+  ],
+  ru: [
+    { q: "новости SOCAR за 14 мая",    label: "новости SOCAR за 14 мая" },
+    { q: "банковское регулирование",   label: "Банковское регулирование" },
+    { q: "новости AccessBank",         label: "новости AccessBank" },
+    { q: "восстановление Карабаха",    label: "Восстановление Карабаха" },
+    { q: "финансовое регулирование",   label: "Финансовое регулирование" },
+    { q: "экспорт газа в Европу",      label: "Экспорт газа в Европу" },
+  ]
+};
 
 // ─── Main Search Dashboard ──────────────────────────────────────────────────
 
 function SearchDashboard() {
+  const { t, language } = useLanguage();
   const [query, setQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -206,7 +259,7 @@ function SearchDashboard() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const q = searchParams.get('q');
-  const placeholder = useRotatingPlaceholder();
+  const placeholder = useRotatingPlaceholder(language);
 
   // Fetch real corpus data on mount (recent articles + trending)
   useEffect(() => {
@@ -255,7 +308,7 @@ function SearchDashboard() {
       const response = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery }),
+        body: JSON.stringify({ query: searchQuery, language }),
       });
 
       if (!response.ok) {
@@ -322,13 +375,12 @@ function SearchDashboard() {
           {!hasQuery && !isLoading && (
             <section className="hero">
               <div className="hero-headline">
-                <div className="hero-eyebrow">Search · Analyze · Sift</div>
+                <div className="hero-eyebrow">{t('hero_eyebrow')}</div>
                 <h1 className="hero-title">
-                  Sift the <em>signal</em> from the noise.
+                  {t('hero_title_1')}<em>{t('hero_title_em')}</em>{t('hero_title_2')}
                 </h1>
                 <p className="hero-sub">
-                  Hybrid semantic search across <strong>{corpusTotal > 0 ? corpusTotal.toLocaleString() : '20,915'}</strong> Azerbaijani,
-                  Russian and English news articles (May 10–15, 2026).
+                  {t('hero_sub', { total: corpusTotal > 0 ? corpusTotal.toLocaleString() : '20,915' })}
                 </p>
               </div>
             </section>
@@ -352,7 +404,7 @@ function SearchDashboard() {
                 </button>
               )}
               <button type="submit" className="search-go" disabled={isLoading || !query.trim()}>
-                <span>{isLoading ? 'Searching...' : 'Search'}</span>
+                <span>{isLoading ? t('searching_btn') : t('search_btn')}</span>
                 <ArrowRight className="w-[16px] h-[16px]" />
               </button>
             </form>
@@ -361,9 +413,9 @@ function SearchDashboard() {
             {!hasQuery && !isLoading && (
               <>
                 <div className="chip-row">
-                  <div className="chip-row-label">Try a query</div>
+                  <div className="chip-row-label">{t('try_query')}</div>
                   <div className="chip-row-items">
-                    {PRESET_CHIPS.map((c) => (
+                    {(PRESET_CHIPS[language] || PRESET_CHIPS['en']).map((c) => (
                       <button key={c.q} className="chip" onClick={() => handleChipClick(c.q)}>
                         <ArrowRight className="w-[13px] h-[13px]" />
                         <span>{c.label}</span>
@@ -377,7 +429,7 @@ function SearchDashboard() {
                   <div className="trending-section mt-6">
                     <div className="trending-label flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-3">
                       <TrendingUp className="w-3.5 h-3.5" />
-                      <span>Trending in the corpus</span>
+                      <span>{t('trending_corpus')}</span>
                     </div>
                     <div className="trending-chips flex flex-wrap gap-2">
                       {trendingEntities.map((ent) => (
@@ -403,12 +455,12 @@ function SearchDashboard() {
               <div className="ai-pill">
                 <div className="ai-pill-label">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Sift understood</span>
+                  <span>{t('sift_understood')}</span>
                 </div>
                 <div className="ai-pill-row">
                   {interpretation.topic && (
                     <span className="ai-token ai-token-topic">
-                      <span className="ai-token-key">Topic</span>
+                      <span className="ai-token-key">{t('token_topic')}</span>
                       <span className="ai-token-val">{interpretation.topic}</span>
                     </span>
                   )}
@@ -436,13 +488,13 @@ function SearchDashboard() {
                   )}
                   {interpretation.sentiment_hint && (
                     <span className="ai-token">
-                      <span className="ai-token-key">Sentiment</span>
-                      <span className="ai-token-val">{interpretation.sentiment_hint}</span>
+                      <span className="ai-token-key">{t('token_sentiment')}</span>
+                      <span className="ai-token-val">{t('sentiment_' + interpretation.sentiment_hint)}</span>
                     </span>
                   )}
                 </div>
                 <div className="ai-pill-explain">
-                  Semantic matching & entity-filtering across the corpus.
+                  {t('semantic_matching_desc')}
                 </div>
               </div>
             )}
@@ -465,7 +517,7 @@ function SearchDashboard() {
             {/* Did you mean? */}
             {didYouMean && !isLoading && (
               <div className="did-you-mean">
-                <span className="did-you-mean-label">Did you mean:</span>
+                <span className="did-you-mean-label">{t('did_you_mean')}</span>
                 <button 
                   className="did-you-mean-suggestion"
                   onClick={() => handleChipClick(didYouMean)}
@@ -481,7 +533,7 @@ function SearchDashboard() {
               <div className="glass-panel border-red-500/30 rounded-2xl p-6 flex items-start gap-4 mb-6">
                 <AlertCircle className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />
                 <div className="flex flex-col gap-1">
-                  <h4 className="font-semibold text-red-700">Search Retrieval Failed</h4>
+                  <h4 className="font-semibold text-red-700">{t('search_failed')}</h4>
                   <p className="text-xs text-[var(--muted)] leading-relaxed">{error}</p>
                 </div>
               </div>
@@ -500,7 +552,7 @@ function SearchDashboard() {
                   >
                     <div className="ai-summary-header">
                       <Brain className="w-4 h-4" />
-                      <span>AI Summary</span>
+                      <span>{t('ai_summary_title')}</span>
                     </div>
                     <p className="ai-summary-text">{aiSummary}</p>
                   </motion.div>
@@ -509,14 +561,14 @@ function SearchDashboard() {
                 <div className="results-bar">
                   <div className="results-bar-left">
                     <span className="results-count">{results.length}</span>
-                    <span className="results-count-label">results</span>
+                    <span className="results-count-label">{t('results')}</span>
                     <span className="results-sep">·</span>
-                    <span className="results-time">ranked in {timing?.totalTimeMs || 120}ms</span>
+                    <span className="results-time">{t('ranked_in')} {timing?.totalTimeMs || 120}ms</span>
                   </div>
                   <div className="results-bar-right flex items-center gap-3">
                     {timing && (
                       <span className="text-[11px] text-[var(--muted)] font-mono hidden sm:inline">
-                        DB: {timing.dbTimeMs}ms · AI Parse: {timing.parseTimeMs}ms · Est. Cost: ${timing.estimatedCostUsd?.toFixed(4)}
+                        {t('telemetry_db')}: {timing.dbTimeMs}ms · {t('telemetry_parse')}: {timing.parseTimeMs}ms · {t('telemetry_cost')}: ${timing.estimatedCostUsd?.toFixed(4)}
                       </span>
                     )}
                     {/* CSV Export Button */}
@@ -526,7 +578,7 @@ function SearchDashboard() {
                       title="Download CSV"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>CSV</span>
+                      <span>{t('download_csv')}</span>
                     </button>
                   </div>
                 </div>
@@ -587,7 +639,7 @@ function SearchDashboard() {
                             </svg>
                             <span className="rel-ring-label">{art.relevance_score}</span>
                           </div>
-                          <div className="rel-label">Relevance</div>
+                          <div className="rel-label">{t('relevance')}</div>
                           <a href={art.link} target="_blank" rel="noopener noreferrer" className="card-open" title="Open Link">
                             <ArrowUpRight className="w-4 h-4" />
                           </a>
@@ -596,11 +648,11 @@ function SearchDashboard() {
                     );
                   })}
                 </div>
-                
+
                 <div className="results-foot justify-center sm:justify-start">
-                  <span>Looking for insights instead?</span>
+                  <span>{t('looking_for_insights')}</span>
                   <button className="link-btn font-medium flex items-center" onClick={() => router.push('/insights')}>
-                    Open Insights <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                    {t('open_insights')} <ArrowRight className="w-3.5 h-3.5 ml-1" />
                   </button>
                 </div>
               </>
@@ -610,8 +662,8 @@ function SearchDashboard() {
             {!isLoading && !error && !hasQuery && (
               <div className="empty-state">
                 <div className="empty-state-head">
-                  <span className="empty-state-eyebrow">Recently surfaced</span>
-                  <h3 className="empty-state-title">What the corpus has been talking about</h3>
+                  <span className="empty-state-eyebrow">{t('recently_surfaced')}</span>
+                  <h3 className="empty-state-title">{t('what_corpus_talks')}</h3>
                 </div>
                 {displayArticles.length > 0 ? (
                   <div className="results-list">
@@ -664,7 +716,7 @@ function SearchDashboard() {
                               </svg>
                               <span className="rel-ring-label">{art.relevance_score}</span>
                             </div>
-                            <div className="rel-label">Relevance</div>
+                            <div className="rel-label">{t('relevance')}</div>
                             <a href={art.link} target="_blank" rel="noopener noreferrer" className="card-open" title="Open Link">
                               <ArrowUpRight className="w-4 h-4" />
                             </a>
@@ -675,7 +727,7 @@ function SearchDashboard() {
                   </div>
                 ) : (
                   <div className="text-center py-12 text-[var(--muted)] text-sm italic">
-                    Loading recent articles from the database...
+                    {t('loading_recent')}
                   </div>
                 )}
               </div>
@@ -686,15 +738,15 @@ function SearchDashboard() {
               <div className="empty-state text-center py-16 bg-[var(--surface)] border border-[var(--hairline)] rounded-[var(--r-lg)] p-12 mt-6">
                 <div className="max-w-md mx-auto flex flex-col items-center gap-3">
                   <Search className="w-8 h-8 text-[var(--faint)]" />
-                  <h3 className="font-semibold text-lg text-[var(--ink)]">No results found</h3>
+                  <h3 className="font-semibold text-lg text-[var(--ink)]">{t('no_results_found')}</h3>
                   <p className="text-sm text-[var(--muted)] leading-relaxed">
-                    Sift scanned the corpus but couldn't find matches for "{submittedQuery}". Try refining your search terms.
+                    {t('no_results_desc', { query: submittedQuery })}
                   </p>
                   <button 
                     onClick={clearSearch}
                     className="mt-2 px-4 py-2 bg-[var(--ink)] text-white text-xs font-semibold rounded-lg hover:bg-[var(--accent)] transition-all"
                   >
-                    Clear search
+                    {t('clear_search')}
                   </button>
                 </div>
               </div>

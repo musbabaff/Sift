@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '@/components/language-provider';
 import { 
   Search, 
   Sparkles, 
@@ -269,6 +270,7 @@ function TelegramBubble({ msg, idx }: { msg: ScriptMessage; idx: number }) {
 }
 
 export default function TelegramPage() {
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [typing, setTyping] = useState(false);
@@ -334,12 +336,12 @@ export default function TelegramPage() {
   return (
     <div className="telegram-view max-w-7xl mx-auto w-full px-4 md:px-8 py-10">
       <div className="telegram-copy">
-        <div className="tg-copy-eyebrow font-mono">Mobile · Telegram Interface</div>
+        <div className="tg-copy-eyebrow font-mono">{t('bot_eyebrow')}</div>
         <h1 className="tg-copy-title font-sans">
-          The same Sift engine,<br /><em>in your pocket</em>.
+          {t('bot_title')}
         </h1>
         <p className="tg-copy-sub text-base leading-relaxed text-muted">
-          Sift features a fully integrated Telegram Bot. Direct message <strong>@SiftNBot</strong> to search our database of 20,915 multilingual articles in plain language.
+          {t('bot_desc')}
         </p>
         <div className="tg-copy-list mb-8 flex flex-col gap-4">
           <div className="tg-copy-row">

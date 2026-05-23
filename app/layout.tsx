@@ -5,6 +5,9 @@ import Link from 'next/link';
 
 import { NavTabs } from "@/components/nav-tabs";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageProvider } from "@/components/language-provider";
+import { LanguageToggle } from "@/components/language-toggle";
+import { CorpusMeta } from "@/components/corpus-meta";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,28 +60,28 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {/* Premium Top Navigation Header */}
-        <header className="topnav">
-          <div className="topnav-inner">
-            <Link href="/" className="brand">
-              <SiftMark />
-              <span className="brand-name">Sift</span>
-            </Link>
-            <NavTabs />
-            <div className="topnav-right">
-              <span className="corpus-meta">
-                <span className="dot live" /> 
-                20,915 docs · May 10–15
-              </span>
-              <ThemeToggle />
+        <LanguageProvider>
+          {/* Premium Top Navigation Header */}
+          <header className="topnav">
+            <div className="topnav-inner">
+              <Link href="/" className="brand">
+                <SiftMark />
+                <span className="brand-name">Sift</span>
+              </Link>
+              <NavTabs />
+              <div className="topnav-right">
+                <CorpusMeta />
+                <LanguageToggle />
+                <ThemeToggle />
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Core Page Render */}
-        <div className="page flex-1 flex flex-col">
-          {children}
-        </div>
+          {/* Core Page Render */}
+          <div className="page flex-1 flex flex-col">
+            {children}
+          </div>
+        </LanguageProvider>
       </body>
     </html>
   );

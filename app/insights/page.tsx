@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/components/language-provider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
@@ -82,6 +83,7 @@ function getInitials(name: string): string {
 
 export default function InsightsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [filter, setFilter] = useState<string>("all"); // all / ORG / PERSON / LOCATION / TOPIC
   const [sort, setSort] = useState<string>("count"); // count / trend / abc
   const [q, setQ] = useState<string>("");
@@ -118,20 +120,19 @@ export default function InsightsPage() {
     router.push(`/?q=${encodeURIComponent(term)}`);
   };
 
-  // Mock static trend mapping to match warm paper design
+  // Enriched entities with real trends from database and category label translations
   const enrichedEntities = useMemo(() => {
-    return entities.map((item, idx) => {
-      // Assign deterministic mock trends for visual spice
-      const seed = item.term.length * 3 + item.count;
-      const trend = Math.round(((seed % 45) - 15) * 1.2);
+    return entities.map((item) => {
+      // Use real trend from the entity_stats computed data or default to 0
+      const trend = (item as any).trend !== undefined ? (item as any).trend : 0;
       
       return {
         ...item,
-        trend: trend === 0 ? 8 : trend,
-        blurb: item.type === 'ORG' ? 'Təşkilat / İdarə' 
-             : item.type === 'PERSON' ? 'Şəxsiyyət' 
-             : item.type === 'LOCATION' ? 'Coğrafi məkan' 
-             : 'Mövzu / Açar söz'
+        trend: trend,
+        blurb: item.type === 'ORG' ? t('org_label') 
+             : item.type === 'PERSON' ? t('person_label') 
+             : item.type === 'LOCATION' ? t('location_label') 
+             : t('topic_label')
       };
     });
   }, [entities]);
@@ -195,26 +196,26 @@ export default function InsightsPage() {
       {/* Editorial Hero Header */}
       <header className="insights-hero border-b border-hairline pb-9">
         <div className="insights-hero-left">
-          <div className="insights-eyebrow font-mono">Entity Intelligence</div>
+          <div className="insights-eyebrow font-mono">{t('entity_intelligence')}</div>
           <h1 className="insights-title text-ink font-sans">
-            <em>Who</em> &amp; <em>what</em> the news has been about.
+            {t('insights_title_1')}<em>{t('insights_title_em')}</em>{t('insights_title_2')}
           </h1>
           <p className="insights-sub text-base text-muted max-w-xl">
-            Sift isolated named entities from our corpus of <strong>20,915</strong> Azerbaijani, Russian, and English articles published between May 10–15, 2026. Click any card to launch a semantic search.
+            {t('insights_sub')}
           </p>
         </div>
         <div className="insights-hero-stats flex gap-10">
           <div className="hero-stat">
             <span className="hero-stat-num font-sans italic">{topStats.total > 0 ? topStats.total : '1,284'}</span>
-            <span className="hero-stat-label font-mono">entities</span>
+            <span className="hero-stat-label font-mono">{t('stat_entities')}</span>
           </div>
           <div className="hero-stat">
             <span className="hero-stat-num font-sans italic">{topStats.org}</span>
-            <span className="hero-stat-label font-mono">organizations</span>
+            <span className="hero-stat-label font-mono">{t('stat_organizations')}</span>
           </div>
           <div className="hero-stat">
             <span className="hero-stat-num font-sans italic">{topStats.person}</span>
-            <span className="hero-stat-label font-mono">key figures</span>
+            <span className="hero-stat-label font-mono">{t('stat_key_figures')}</span>
           </div>
         </div>
       </header>
@@ -227,10 +228,10 @@ export default function InsightsPage() {
               const trendUp = e.trend >= 0;
               return (
                 <div key={e.term} className="spotlight border border-hairline hover:border-ink rounded-2xl p-5 cursor-pointer bg-[var(--surface)]" onClick={() => handleEntityClick(e.term)}>
-                  <div className="spotlight-eyebrow font-mono text-[10px] text-faint">Most mentioned · {KIND_GLYPH[e.type]}</div>
+                  <div className="spotlight-eyebrow font-mono text-[10px] text-faint">{t('most_mentioned')} · {KIND_GLYPH[e.type]}</div>
                   <div className="spotlight-name font-sans font-bold text-2xl mt-1 text-ink">{e.term}</div>
                   <div className="spotlight-meta flex items-center gap-2 mt-2 text-xs text-muted">
-                    <span className="font-mono">{e.count.toLocaleString()} mentions</span>
+                    <span className="font-mono">{e.count.toLocaleString()} {t('mentions_unit')}</span>
                     <span className={`entity-trend mini flex items-center gap-1 font-mono ${trendUp ? "text-[#0E6E3A]" : "text-[#FF4D14]"}`}>
                       {trendUp ? <Icon.up /> : <Icon.down />}
                       {Math.abs(e.trend)}%
@@ -247,11 +248,11 @@ export default function InsightsPage() {
       <div className="insights-toolbar border-t border-b border-hairline py-4 flex flex-wrap gap-4 justify-between items-center mt-6">
         <div className="filter-pills flex flex-wrap gap-1.5">
           {[
-            { id: "all",      label: "All entities" },
-            { id: "ORG",      label: "Organizations" },
-            { id: "PERSON",   label: "Key figures" },
-            { id: "LOCATION", label: "Locations" },
-            { id: "TOPIC",    label: "Topics" },
+            { id: "all",      label: t('filter_all') },
+            { id: "ORG",      label: t('filter_orgs') },
+            { id: "PERSON",   label: t('filter_persons') },
+            { id: "LOCATION", label: t('filter_locations') },
+            { id: "TOPIC",    label: t('filter_topics') },
           ].map((f) => (
             <button
               key={f.id}
@@ -280,7 +281,7 @@ export default function InsightsPage() {
             <Search className="w-4 h-4 text-muted" />
             <input
               type="text"
-              placeholder="Filter entities…"
+              placeholder={t('filter_placeholder')}
               className="text-xs text-ink bg-transparent focus:outline-none w-36 md:w-48"
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -297,9 +298,9 @@ export default function InsightsPage() {
             className="rb-btn text-xs px-3 py-1.5 border border-hairline bg-[var(--surface)] rounded-lg hover:border-ink flex items-center gap-1.5"
             onClick={() => setSort(sort === "count" ? "trend" : sort === "trend" ? "abc" : "count")}
           >
-            <span>Sort: </span>
+            <span>{t('sort_by')} </span>
             <strong className="text-ink font-semibold">
-              {sort === "count" ? "Mentions" : sort === "trend" ? "Trending" : "A–Z"}
+              {sort === "count" ? t('sort_mentions') : sort === "trend" ? t('sort_trending') : t('sort_abc')}
             </strong>
           </button>
         </div>
@@ -320,9 +321,9 @@ export default function InsightsPage() {
           <div className="glass-panel border-red-500/20 rounded-2xl p-6 flex items-start gap-4 max-w-xl mx-auto my-12 bg-[var(--surface)]">
             <AlertCircle className="w-6 h-6 text-red-500 shrink-0 mt-0.5" />
             <div className="flex flex-col gap-1">
-              <h4 className="font-semibold text-ink font-sans">Database Query Interrupted</h4>
+              <h4 className="font-semibold text-ink font-sans">{t('db_error_title')}</h4>
               <p className="text-xs text-muted leading-relaxed">
-                Please make sure you have created the <code>entity_stats</code> table in your Supabase SQL Editor and populated it using <code>npx tsx scripts/compute-entities.ts</code>.
+                {t('db_error_desc')}
               </p>
             </div>
           </div>
@@ -331,7 +332,7 @@ export default function InsightsPage() {
         {/* Empty matches result */}
         {!isLoading && !error && filtered.length === 0 && (
           <div className="entity-empty text-center py-20 text-muted italic font-serif text-lg">
-            No entities matched your criteria.
+            {t('no_entities_matched')}
           </div>
         )}
 
@@ -370,7 +371,7 @@ export default function InsightsPage() {
                     <div className="entity-card-foot flex justify-between items-end w-full border-t border-hairline-2 pt-3 mt-1">
                       <div className="entity-count flex flex-col">
                         <span className="entity-count-num font-mono text-base font-bold text-ink leading-none">{e.count.toLocaleString()}</span>
-                        <span className="entity-count-label text-[10px] text-faint mt-1">mentions</span>
+                        <span className="entity-count-label text-[10px] text-faint mt-1">{t('mentions_unit')}</span>
                       </div>
                       <div className={`entity-trend flex items-center gap-1 font-mono text-xs ${trendUp ? "text-[#0E6E3A]" : "text-[#FF4D14]"}`}>
                         {trendUp ? <Icon.up /> : <Icon.down />}
@@ -381,7 +382,7 @@ export default function InsightsPage() {
 
                     {/* Sliding Hover Action Panel */}
                     <div className="entity-card-hover absolute inset-x-0 bottom-0 py-3.5 px-5 bg-ink text-paper flex items-center justify-between text-xs transition-transform duration-200 translate-y-full group-hover:translate-y-0">
-                      <span>Search news about {e.term}</span>
+                      <span>{t('search_about_entity')} {e.term}</span>
                       <Icon.arrow />
                     </div>
                   </motion.button>

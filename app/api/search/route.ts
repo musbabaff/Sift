@@ -32,7 +32,7 @@ async function getKnownTerms(): Promise<string[]> {
  * Generates a brief AI executive summary of the top search results.
  * Only sends top-5 titles + short snippets to keep cost under $0.0001/call.
  */
-async function generateAISummary(query: string, results: any[]): Promise<string | null> {
+async function generateAISummary(query: string, results: any[], language: string = 'en'): Promise<string | null> {
   if (results.length === 0) return null;
 
   const top5 = results.slice(0, 5);
@@ -40,15 +40,23 @@ async function generateAISummary(query: string, results: any[]): Promise<string 
     `${i + 1}. "${r.title}" (${r.source}, ${r.language.toUpperCase()}) — ${r.content?.substring(0, 100)}...`
   ).join('\n');
 
+  // Map language code to full language name
+  let targetLanguage = 'English';
+  if (language === 'az') {
+    targetLanguage = 'Azerbaijani';
+  } else if (language === 'ru') {
+    targetLanguage = 'Russian';
+  }
+
   try {
     const summary = await getChatCompletion([
       {
         role: 'system',
-        content: 'You are a news analyst. Given search results, write a 2-3 sentence executive summary in English. Be concise, factual, and highlight the key themes. Do NOT use markdown formatting.'
+        content: `You are a news analyst. Given search results, write a 2-3 sentence executive summary in ${targetLanguage}. Be concise, factual, and highlight the key themes. Do NOT use markdown formatting.`
       },
       {
         role: 'user',
-        content: `Search query: "${query}"\n\nTop results:\n${articlesContext}\n\nWrite a brief summary:`
+        content: `Search query: "${query}"\n\nTop results:\n${articlesContext}\n\nWrite a brief summary in ${targetLanguage}:`
       }
     ], { temperature: 0.3, max_tokens: 150 });
 
@@ -65,7 +73,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { query } = body;
+    const { query, language } = body;
 
     // Validate request parameter
     if (!query || typeof query !== 'string' || query.trim() === '') {
@@ -77,7 +85,7 @@ export async function POST(req: NextRequest) {
     }
 
     const sanitizedQuery = query.trim();
-    console.log(`[API Search] Executing hybrid search for: "${sanitizedQuery}"`);
+    console.log(`[API Search] Executing hybrid search for: "${sanitizedQuery}" | Language: ${language || 'not specified'}`);
 
     // Execute search + load known terms for fuzzy matching in parallel
     const [searchResponse, knownTerms] = await Promise.all([
@@ -86,7 +94,7 @@ export async function POST(req: NextRequest) {
     ]);
 
     // Generate AI summary (non-blocking)
-    const summaryPromise = generateAISummary(sanitizedQuery, searchResponse.results);
+    const summaryPromise = generateAISummary(sanitizedQuery, searchResponse.results, language);
 
     // Fuzzy "Did you mean?" — compare query words against known entity terms
     const didYouMean = getSuggestion(sanitizedQuery, knownTerms);
