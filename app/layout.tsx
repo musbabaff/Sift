@@ -4,6 +4,7 @@ import "./globals.css";
 import Link from 'next/link';
 
 import { NavTabs } from "@/components/nav-tabs";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,6 +70,7 @@ export default function RootLayout({
                 <span className="dot live" /> 
                 20,915 docs · May 10–15
               </span>
+              <ThemeToggle />
             </div>
           </div>
         </header>

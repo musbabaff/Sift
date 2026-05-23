@@ -226,7 +226,7 @@ export default function InsightsPage() {
             {spotLights.map((e: any) => {
               const trendUp = e.trend >= 0;
               return (
-                <div key={e.term} className="spotlight border border-hairline hover:border-ink rounded-2xl p-5 cursor-pointer bg-white" onClick={() => handleEntityClick(e.term)}>
+                <div key={e.term} className="spotlight border border-hairline hover:border-ink rounded-2xl p-5 cursor-pointer bg-[var(--surface)]" onClick={() => handleEntityClick(e.term)}>
                   <div className="spotlight-eyebrow font-mono text-[10px] text-faint">Most mentioned · {KIND_GLYPH[e.type]}</div>
                   <div className="spotlight-name font-sans font-bold text-2xl mt-1 text-ink">{e.term}</div>
                   <div className="spotlight-meta flex items-center gap-2 mt-2 text-xs text-muted">
@@ -258,13 +258,13 @@ export default function InsightsPage() {
               className={`filter-pill flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
                 filter === f.id 
                   ? "bg-ink text-paper border-ink" 
-                  : "bg-white border-hairline text-ink-2 hover:border-ink"
+                  : "bg-[var(--surface)] border-hairline text-ink-2 hover:border-ink"
               }`}
               onClick={() => setFilter(f.id)}
             >
               <span>{f.label}</span>
               <span className={`filter-pill-count text-[10px] ml-1 px-1.5 py-0.5 rounded-full ${
-                filter === f.id ? "bg-white/20 text-white/70" : "bg-paper-2 text-muted"
+                filter === f.id ? "bg-paper/20" : "bg-paper-2 text-muted"
               }`}>
                 {f.id === "all"
                   ? enrichedEntities.length
@@ -276,7 +276,7 @@ export default function InsightsPage() {
 
         <div className="insights-tools flex gap-2">
           {/* Client-Side Search input */}
-          <div className="entity-search border border-hairline rounded-lg bg-white px-3 py-1.5 flex items-center gap-2">
+          <div className="entity-search border border-hairline rounded-lg bg-[var(--surface)] px-3 py-1.5 flex items-center gap-2">
             <Search className="w-4 h-4 text-muted" />
             <input
               type="text"
@@ -294,7 +294,7 @@ export default function InsightsPage() {
 
           {/* Sort trigger button */}
           <button 
-            className="rb-btn text-xs px-3 py-1.5 border border-hairline bg-white rounded-lg hover:border-ink flex items-center gap-1.5"
+            className="rb-btn text-xs px-3 py-1.5 border border-hairline bg-[var(--surface)] rounded-lg hover:border-ink flex items-center gap-1.5"
             onClick={() => setSort(sort === "count" ? "trend" : sort === "trend" ? "abc" : "count")}
           >
             <span>Sort: </span>
@@ -317,7 +317,7 @@ export default function InsightsPage() {
 
         {/* Error message */}
         {error && !isLoading && (
-          <div className="glass-panel border-red-500/20 rounded-2xl p-6 flex items-start gap-4 max-w-xl mx-auto my-12 bg-white">
+          <div className="glass-panel border-red-500/20 rounded-2xl p-6 flex items-start gap-4 max-w-xl mx-auto my-12 bg-[var(--surface)]">
             <AlertCircle className="w-6 h-6 text-red-500 shrink-0 mt-0.5" />
             <div className="flex flex-col gap-1">
               <h4 className="font-semibold text-ink font-sans">Database Query Interrupted</h4>
@@ -352,7 +352,7 @@ export default function InsightsPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2, delay: idx * 0.01 }}
-                    className="entity-card flex flex-col justify-between p-5 border border-hairline hover:border-ink rounded-2xl text-left bg-white relative overflow-hidden group select-none cursor-pointer"
+                    className="entity-card flex flex-col justify-between p-5 border border-hairline hover:border-ink rounded-2xl text-left bg-[var(--surface)] relative overflow-hidden group select-none cursor-pointer"
                     onClick={() => handleEntityClick(e.term)}
                   >
                     <div className="entity-card-head flex justify-between items-center w-full mb-3">

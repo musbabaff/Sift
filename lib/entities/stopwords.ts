@@ -2,7 +2,7 @@
 
 // 1. Azerbaijani Stopwords Set
 const AZ_STOPWORDS = new Set([
-  'və', 'üçün', 'ilə', 'bu', 'bir', 'daha', 'ki', 'həm', 'həmçinin', 'belə', 'o', 'ya', 'da', 
+  'və', 've', 'üçün', 'ilə', 'ile', 'bu', 'bir', 'daha', 'ki', 'həm', 'həmçinin', 'belə', 'o', 'ya', 'da', 
   'ən', 'çox', 'sonra', 'isə', 'biz', 'siz', 'onlar', 'amma', 'ancaq', 'lakin', 'bəzi', 'bütün', 
   'hər', 'heç', 'nə', 'bəli', 'xeyr', 'çünki', 'buna', 'bunun', 'üzrə', 'qarşı', 'görə', 
   'tərəfindən', 'aid', 'kimi', 'olaraq', 'olan', 'olub', 'olunub', 'olacaq', 'etmək', 'edib', 
@@ -14,7 +14,8 @@ const AZ_STOPWORDS = new Set([
   // Common Azerbaijani news filler terms (noisy keywords)
   'xəbər', 'xəbərlər', 'məlumat', 'bildirib', 'qeyd', 'deyib', 'şəkil', 'foto', 'video', 
   'sayt', 'saytı', 'istinadən', 'istinad', 'saytına', 'saytında', 'əsasən', 'yaxın', 'gün', 
-  'günü', 'illik', 'illər', 'ilində', 'ayında', 'aylar', 'saat', 'dən', 'dan', 'dək', 'il', 'ildə'
+  'günü', 'illik', 'illər', 'ilində', 'ayında', 'aylar', 'saat', 'dən', 'dan', 'dək', 'il', 'ildə',
+  'olan', 'olar', 'üzrə', 'haqqında', 'barədə', 'mövzu', 'olan', 'manat', 'faiz', 'min', 'milyon'
 ]);
 
 // 2. Russian Stopwords Set
@@ -34,7 +35,7 @@ const RU_STOPWORDS = new Set([
 
 // 3. English Stopwords Set
 const EN_STOPWORDS = new Set([
-  'the', 'a', 'an', 'of', 'to', 'in', 'for', 'on', 'by', 'at', 'with', 'from', 'as', 'about', 
+  'the', 'a', 'an', 'and', 'or', 'but', 'yet', 'of', 'to', 'in', 'for', 'on', 'by', 'at', 'with', 'from', 'as', 'about', 
   'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 
   'up', 'down', 'out', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 
   'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 

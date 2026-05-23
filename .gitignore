@@ -37,9 +37,6 @@ yarn-error.log*
 # reference design files (not part of submission)
 /new_design/
 
-# large data file (provided separately by organizers)
-news_data.xlsx
-
 # pnpm store
 .pnpm-store/
 

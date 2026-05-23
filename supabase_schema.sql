@@ -138,6 +138,48 @@ create index if not exists entity_stats_type_idx on entity_stats(type);
 
 
 -- =========================================================================
+-- 📊 CORPUS STATISTICS RPC FUNCTIONS (Real-time, zero mock data)
+-- =========================================================================
+
+-- Category distribution: returns each category with its article count
+create or replace function get_category_stats()
+returns table(category text, cnt bigint)
+language sql stable
+as $$
+  select
+    coalesce(category, 'Other') as category,
+    count(*) as cnt
+  from articles
+  group by coalesce(category, 'Other')
+  order by cnt desc;
+$$;
+
+-- Source distribution: returns each source domain with its article count
+create or replace function get_source_stats()
+returns table(source text, cnt bigint)
+language sql stable
+as $$
+  select
+    coalesce(source, 'unknown') as source,
+    count(*) as cnt
+  from articles
+  group by coalesce(source, 'unknown')
+  order by cnt desc
+  limit 10;
+$$;
+
+-- Language distribution: returns each language code with its article count
+create or replace function get_language_stats()
+returns table(language text, cnt bigint)
+language sql stable
+as $$
+  select
+    coalesce(lower(language), 'unknown') as language,
+    count(*) as cnt
+  from articles
+  group by coalesce(lower(language), 'unknown')
+  order by cnt desc;
+$$;
 -- 📂 SEED / SAMPLE DATASET PRELOAD (100% Operational Out-of-the-Box)
 -- =========================================================================
 

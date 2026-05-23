@@ -386,7 +386,7 @@ export default function TelegramPage() {
         <div className="phone-notch" />
         <div className="phone-screen bg-paper flex flex-col h-full">
           {/* Mock Telegram Header */}
-          <div className="tg-header bg-white">
+          <div className="tg-header bg-[var(--surface)]">
             <button className="tg-back font-light text-muted">‹</button>
             <div className="tg-header-avatar"><SiftMark size={22} /></div>
             <div className="tg-header-info">
@@ -414,7 +414,7 @@ export default function TelegramPage() {
           </div>
 
           {/* Composer Footer area */}
-          <div className="tg-composer bg-white border-t border-hairline-2 px-3.5 py-2.5 flex items-center justify-between">
+          <div className="tg-composer bg-[var(--surface)] border-t border-hairline-2 px-3.5 py-2.5 flex items-center justify-between">
             <button className="tg-composer-btn"><Paperclip className="w-5 h-5 text-muted" /></button>
             <div className="tg-composer-input flex-1 bg-paper border border-hairline-2 rounded-full px-4 py-2 text-xs text-faint select-none">
               Message

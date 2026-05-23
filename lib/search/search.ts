@@ -1,6 +1,7 @@
 import { createSupabaseAdminClient } from '../supabase/admin';
 import { getEmbeddingsBatch } from '../ai/openai';
 import { parseSearchQuery, ParsedQuery } from './parse-query';
+import { isStopword } from '../entities/stopwords';
 
 export interface SearchResult {
   id: number;
@@ -118,10 +119,17 @@ export async function executeHybridSearch(
   
   let fallbackApplied = false;
   
+  // Clean query text for full-text search by stripping common stopwords (e.g. "ve", "and", "or", etc.)
+  const cleanedQuery = topicQuery
+    .split(/\s+/)
+    .filter(word => !isStopword(word))
+    .join(' ');
+  const finalQueryText = cleanedQuery.trim() !== '' ? cleanedQuery : topicQuery;
+  
   // Call RPC with extracted filter fields
   let { data: rawArticles, error: dbError } = await supabase.rpc('match_articles', {
     query_embedding: queryEmbedding,
-    query_text: topicQuery,
+    query_text: finalQueryText,
     date_from: interpretation.date_from,
     date_to: interpretation.date_to,
     filter_category: interpretation.category_hint,
@@ -144,7 +152,7 @@ export async function executeHybridSearch(
 
     const retryResponse = await supabase.rpc('match_articles', {
       query_embedding: queryEmbedding,
-      query_text: topicQuery,
+      query_text: finalQueryText,
       date_from: interpretation.date_from,
       date_to: interpretation.date_to,
       filter_category: null,

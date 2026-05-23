@@ -43,7 +43,7 @@ const typeBadgeStyles = {
   ORG: 'bg-[rgba(111,71,199,0.06)] border-[var(--kind-semantic)]/20 text-[var(--kind-semantic)] hover:bg-[rgba(111,71,199,0.12)]',
   PERSON: 'bg-[rgba(14,110,58,0.06)] border-[var(--kind-exact)]/20 text-[var(--kind-exact)] hover:bg-[rgba(14,110,58,0.12)]',
   LOCATION: 'bg-[rgba(181,121,12,0.06)] border-[var(--kind-lexical)]/20 text-[var(--kind-lexical)] hover:bg-[rgba(181,121,12,0.12)]',
-  TOPIC: 'bg-white border-[var(--hairline)] text-[var(--ink-2)] hover:bg-[var(--paper-2)]'
+  TOPIC: 'bg-[var(--surface)] border-[var(--hairline)] text-[var(--ink-2)] hover:bg-[var(--paper-2)]'
 };
 
 const typeLabels = {
@@ -60,72 +60,86 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
   const [isLoadingEntities, setIsLoadingEntities] = useState(false);
   const [errorEntities, setErrorEntities] = useState<string | null>(null);
 
-  // Precomputed SIFT_CORPUS_STATS for empty state
-  const SIFT_CORPUS_STATS = {
-    total: 20915,
-    byLang: { az: 0.612, ru: 0.241, en: 0.147 },
-    byCategory: [
-      { label: "Economy",        share: 0.221 },
-      { label: "Politics",       share: 0.184 },
-      { label: "Energy",         share: 0.142 },
-      { label: "Society",        share: 0.131 },
-      { label: "Finance",        share: 0.118 },
-      { label: "Culture",        share: 0.082 },
-      { label: "Sports",         share: 0.066 },
-      { label: "Other",          share: 0.056 },
-    ],
-    topSources: [
-      { id: "oxu.az",      count: 3214 },
-      { id: "trend.az",    count: 2871 },
-      { id: "report.az",   count: 2412 },
-      { id: "apa.az",      count: 2104 },
-      { id: "interfax.ru", count: 1487 },
-      { id: "marja.az",    count: 1102 },
-      { id: "tass.ru",     count: 988 },
-      { id: "reuters.com", count: 614 },
-    ],
-  };
+  // Real corpus stats from DB
+  const [corpusStats, setCorpusStats] = useState<{
+    total: number;
+    categories: { label: string; share: number }[];
+    sources: { id: string; count: number }[];
+    languages: Record<string, number>;
+  }>({
+    total: 0,
+    categories: [],
+    sources: [],
+    languages: { az: 0, ru: 0, en: 0 },
+  });
 
-  // 1. Category Mix Calculation
-  const cats = useMemo(() => {
-    if (!hasQuery || results.length === 0) return SIFT_CORPUS_STATS.byCategory;
-    const counts: Record<string, number> = {};
-    results.forEach((r) => { 
-      const c = r.category || 'Other';
-      counts[c] = (counts[c] || 0) + 1; 
-    });
-    const total = results.length || 1;
-    return Object.entries(counts)
-      .map(([label, n]) => ({ label, share: n / total }))
-      .sort((a, b) => b.share - a.share);
-  }, [results, hasQuery]);
-
-  // 2. Languages Calculation
-  const langs = useMemo(() => {
-    if (!hasQuery || results.length === 0) return SIFT_CORPUS_STATS.byLang;
-    const c = { az: 0, ru: 0, en: 0 } as Record<string, number>;
-    results.forEach((r) => { 
-      const l = r.language?.toLowerCase();
-      if (l === 'az' || l === 'ru' || l === 'en') {
-        c[l] = (c[l] || 0) + 1; 
+  // Fetch real corpus stats on mount
+  useEffect(() => {
+    async function fetchCorpusStats() {
+      try {
+        const res = await fetch('/api/corpus');
+        if (res.ok) {
+          const data = await res.json();
+          setCorpusStats({
+            total: data.total || 0,
+            categories: data.categories || [],
+            sources: data.sources || [],
+            languages: data.languages || { az: 0, ru: 0, en: 0 },
+          });
+        }
+      } catch (err) {
+        console.warn('[ResultsRail] Failed to load corpus stats:', err);
       }
-    });
-    const total = results.length || 1;
-    return { az: c.az / total, ru: c.ru / total, en: c.en / total };
-  }, [results, hasQuery]);
+    }
+    fetchCorpusStats();
+  }, []);
 
-  // 3. Top Sources Calculation
+  // 1. Category Mix — real search results or real corpus stats
+  const cats = useMemo(() => {
+    if (hasQuery && results.length > 0) {
+      const counts: Record<string, number> = {};
+      results.forEach((r) => { 
+        const c = r.category || 'Other';
+        counts[c] = (counts[c] || 0) + 1; 
+      });
+      const total = results.length || 1;
+      return Object.entries(counts)
+        .map(([label, n]) => ({ label, share: n / total }))
+        .sort((a, b) => b.share - a.share);
+    }
+    return corpusStats.categories;
+  }, [results, hasQuery, corpusStats.categories]);
+
+  // 2. Languages — real search results or real corpus stats
+  const langs = useMemo(() => {
+    if (hasQuery && results.length > 0) {
+      const c = { az: 0, ru: 0, en: 0 } as Record<string, number>;
+      results.forEach((r) => { 
+        const l = r.language?.toLowerCase();
+        if (l === 'az' || l === 'ru' || l === 'en') {
+          c[l] = (c[l] || 0) + 1; 
+        }
+      });
+      const total = results.length || 1;
+      return { az: c.az / total, ru: c.ru / total, en: c.en / total };
+    }
+    return corpusStats.languages;
+  }, [results, hasQuery, corpusStats.languages]);
+
+  // 3. Top Sources — real search results or real corpus stats
   const sources = useMemo(() => {
-    if (!hasQuery || results.length === 0) return SIFT_CORPUS_STATS.topSources.slice(0, 6);
-    const c = {} as Record<string, number>;
-    results.forEach((r) => { 
-      c[r.source] = (c[r.source] || 0) + 1; 
-    });
-    return Object.entries(c)
-      .map(([id, count]) => ({ id, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 6);
-  }, [results, hasQuery]);
+    if (hasQuery && results.length > 0) {
+      const c = {} as Record<string, number>;
+      results.forEach((r) => { 
+        c[r.source] = (c[r.source] || 0) + 1; 
+      });
+      return Object.entries(c)
+        .map(([id, count]) => ({ id, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 6);
+    }
+    return corpusStats.sources.slice(0, 6);
+  }, [results, hasQuery, corpusStats.sources]);
 
   // Fetch live entities whenever search results change
   useEffect(() => {
@@ -193,12 +207,12 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
         <div className="rail-sub">
           {hasQuery
             ? `${results.length} result${results.length === 1 ? "" : "s"}`
-            : `20,915 docs · May 10–15, 2026`}
+            : `${corpusStats.total > 0 ? corpusStats.total.toLocaleString() : '...'} docs · May 10–15, 2026`}
         </div>
       </div>
 
       {/* Category mix */}
-      <section className="bg-white border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
+      <section className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
         <header className="flex justify-between items-baseline border-b border-[var(--hairline-2)] pb-2 mb-1">
           <span className="text-[12.5px] font-semibold text-[var(--ink)]">Category mix</span>
           <span className="text-[10px] text-[var(--muted)] font-mono">{cats.length} categories</span>
@@ -222,7 +236,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
       </section>
 
       {/* Top sources */}
-      <section className="bg-white border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
+      <section className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
         <header className="flex justify-between items-baseline border-b border-[var(--hairline-2)] pb-2 mb-1">
           <span className="text-[12.5px] font-semibold text-[var(--ink)]">Top sources</span>
         </header>
@@ -244,7 +258,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
       </section>
 
       {/* Languages */}
-      <section className="bg-white border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
+      <section className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-3">
         <header className="flex justify-between items-baseline border-b border-[var(--hairline-2)] pb-2 mb-1">
           <span className="text-[12.5px] font-semibold text-[var(--ink)]">Languages</span>
         </header>
@@ -274,7 +288,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
       </section>
 
       {/* Dynamic Entity Intelligence Feed (Premium integration) */}
-      <section className="bg-white border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-4">
+      <section className="bg-[var(--surface)] border border-[var(--hairline)] rounded-[var(--r-lg)] p-5 flex flex-col gap-4">
         <div className="flex items-center gap-2 border-b border-[var(--hairline-2)] pb-2.5">
           <Activity className="w-4 h-4 text-[var(--accent)]" />
           <h3 className="font-semibold text-xs tracking-wide uppercase text-[var(--ink)]">
@@ -289,7 +303,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
             onClick={() => setActiveTab('live')}
             className={`flex-1 text-center py-1.5 text-xs font-semibold rounded-lg transition-all ${
               activeTab === 'live'
-                ? 'bg-white border border-[var(--hairline)] text-[var(--ink)] shadow-sm'
+                ? 'bg-[var(--surface)] border border-[var(--hairline)] text-[var(--ink)] shadow-sm'
                 : 'text-[var(--muted)] hover:text-[var(--ink)]'
             }`}
           >
@@ -300,7 +314,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
             onClick={() => setActiveTab('global')}
             className={`flex-1 text-center py-1.5 text-xs font-semibold rounded-lg transition-all ${
               activeTab === 'global'
-                ? 'bg-white border border-[var(--hairline)] text-[var(--ink)] shadow-sm'
+                ? 'bg-surface border border-[var(--hairline)] text-[var(--ink)] shadow-sm'
                 : 'text-[var(--muted)] hover:text-[var(--ink)]'
             }`}
           >
@@ -371,7 +385,7 @@ export function ResultsRail({ results, onEntityClick, hasQuery }: ResultsRailPro
                     
                     <div className="flex items-center gap-1.5 shrink-0 font-mono">
                       {entity.count && (
-                        <span className="text-[10px] font-bold bg-white/70 border border-[var(--hairline)] px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] font-bold bg-[var(--surface)]/70 border border-[var(--hairline)] px-1.5 py-0.5 rounded">
                           {entity.count}
                         </span>
                       )}

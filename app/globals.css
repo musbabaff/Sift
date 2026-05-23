@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+@theme {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-hairline: var(--hairline);
+  --color-hairline-2: var(--hairline-2);
+  --color-kind-exact: var(--kind-exact);
+  --color-kind-semantic: var(--kind-semantic);
+  --color-kind-lexical: var(--kind-lexical);
+}
+
 /* ╭───────────────────────────────────────────────────────────╮
    │  Sift — design tokens & component styles                  │
    │  Aesthetic: warm paper, editorial serif italics for       │
@@ -18,7 +37,8 @@
   --faint:    #9B988C;
   --hairline: #E0DCCF;
   --hairline-2: #EDE9DD;
-
+  --topnav-bg: rgba(244, 241, 232, 0.86);
+  
   /* Signal accent — single bright color, used sparingly */
   --accent:        #FF4D14;
   --accent-soft:   #FFEFE7;
@@ -96,7 +116,7 @@ code { font-family: var(--ff-mono); font-size: 0.92em; background: var(--surface
 /* ── Top nav ─────────────────────────────────────────── */
 .topnav {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(244,241,232,0.86);
+  background: var(--topnav-bg);
   backdrop-filter: saturate(140%) blur(14px);
   -webkit-backdrop-filter: saturate(140%) blur(14px);
   border-bottom: 1px solid var(--hairline);
@@ -1210,6 +1230,260 @@ code { font-family: var(--ff-mono); font-size: 0.92em; background: var(--surface
 /* Sparkline color */
 .sparkline { color: currentColor; }
 
+/* ── "Did you mean?" Fuzzy Suggestion ────────────────────────────── */
+.did-you-mean {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(255, 77, 20, 0.12);
+  border-radius: var(--r-md);
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.did-you-mean-label {
+  font-style: italic;
+  color: var(--muted);
+}
+.did-you-mean-suggestion {
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-family: var(--ff-ui);
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+.did-you-mean-suggestion:hover {
+  color: var(--accent-ink);
+}
+.did-you-mean-hint {
+  color: var(--muted);
+}
+
+/* ── AI Summary Card ─────────────────────────────────────────────── */
+.ai-summary-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.ai-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-family: var(--ff-mono);
+}
+.ai-summary-text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0;
+  font-family: var(--ff-ui);
+}
+
+/* ── Sentiment Badges ────────────────────────────────────────────── */
+.sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 600;
+  font-family: var(--ff-mono);
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.sentiment-positive {
+  background: rgba(14, 110, 58, 0.08);
+  color: #0E6E3A;
+  border: 1px solid rgba(14, 110, 58, 0.15);
+}
+.sentiment-negative {
+  background: rgba(255, 77, 20, 0.08);
+  color: #D43B06;
+  border: 1px solid rgba(255, 77, 20, 0.15);
+}
+.sentiment-neutral {
+  background: var(--paper-2);
+  color: var(--muted);
+  border: 1px solid var(--hairline);
+}
+
+/* ── Trending Topics Section ─────────────────────────────────────── */
+.trending-section {
+  margin-top: 20px;
+}
+.trending-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-family: var(--ff-mono);
+  margin-bottom: 10px;
+}
+.trending-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.trending-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--ff-ui);
+}
+.trending-chip:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+.trending-chip-name {
+  font-weight: 500;
+}
+.trending-chip-count {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--faint);
+  background: var(--paper-2);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+.trending-chip:hover .trending-chip-count {
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+}
+
+/* ── CSV Export Button ───────────────────────────────────────────── */
+.csv-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: var(--ff-mono);
+  color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.csv-export-btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* ── Dark Mode Toggle ────────────────────────────────────────────── */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-toggle:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* ── Dark Mode Theme ─────────────────────────────────────────────── */
+[data-theme="dark"], html[data-theme="dark"] {
+  --paper:      #0E0E0C;
+  --paper-2:    #1A1A18;
+  --surface:    #1E1E1C;
+  --surface-2:  #262624;
+  --ink:        #F4F1E8;
+  --ink-2:      #D4D1C8;
+  --muted:      #8B8880;
+  --faint:      #5B5850;
+  --hairline:   #2E2E2A;
+  --hairline-2: #242420;
+  --topnav-bg:  rgba(14, 14, 12, 0.86);
+
+  --accent:      #FF6B35;
+  --accent-soft: #2A1A10;
+  --accent-ink:  #FFB088;
+
+  --kind-exact:    #3AE07A;
+  --kind-semantic: #A78BFF;
+  --kind-lexical:  #FFB84D;
+
+  --lang-az:  #FF7A45;
+  --lang-ru:  #6B9BFF;
+  --lang-en:  #4AE090;
+
+  --sh-card:  0 1px 0 rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --sh-pop:   0 2px 4px rgba(0,0,0,0.3), 0 12px 32px -8px rgba(0,0,0,0.5);
+}
+
+/* Explicit Dark Mode Overrides to prevent any Tailwind v4/Preflight overrides */
+html[data-theme="dark"] {
+  color-scheme: dark !important;
+}
+html[data-theme="dark"] body {
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .topnav {
+  background: var(--topnav-bg) !important;
+  border-bottom-color: var(--hairline) !important;
+}
+html[data-theme="dark"] .trending-chip {
+  background-color: var(--surface) !important;
+  border-color: var(--hairline) !important;
+  color: var(--ink-2) !important;
+}
+html[data-theme="dark"] .trending-chip-count {
+  background-color: var(--paper-2) !important;
+  color: var(--faint) !important;
+}
+html[data-theme="dark"] .trending-chip:hover {
+  background-color: var(--ink) !important;
+  color: var(--paper) !important;
+  border-color: var(--ink) !important;
+}
+html[data-theme="dark"] .trending-chip:hover .trending-chip-count {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
 /* Responsive */
 @media (max-width: 1100px) {
   .home-grid { grid-template-columns: 1fr; }
@@ -1229,3 +1503,4 @@ code { font-family: var(--ff-mono); font-size: 0.92em; background: var(--surface
   .insights-spotlights { grid-template-columns: 1fr; }
   .hero-stat-num { font-size: 32px; }
 }
+
