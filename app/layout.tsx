@@ -25,6 +25,9 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Sift — AI News Intelligence",
   description: "Sift the signal from the noise. Multilingual semantic + keyword hybrid news intelligence search.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 // SiftMark Shared Logo Icon
