@@ -87,7 +87,7 @@ begin
       and (date_to is null or a.published_at <= date_to)
       and (filter_category is null or a.category = filter_category)
       and (filter_source is null or a.source = filter_source)
-    order by ts_rank(a.search_tsv, plainto_tsquery('simple', query_text)) desc
+    order by a.published_at desc
     limit 150
   ),
   -- 3. Combine candidate IDs
