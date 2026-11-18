@@ -1,0 +1,60 @@
+name: Bug report
+description: Something in Sift isn't working as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Search for …
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Search (semantic / keyword)
+        - Query parsing / entity extraction
+        - Telegram bot
+        - Web UI
+        - Data import / Supabase
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Query language
+      options:
+        - Azerbaijani
+        - Russian
+        - English
+        - Not language-specific
+  - type: textarea
+    id: query
+    attributes:
+      label: Example query
+      description: The exact search query or bot message that triggers the bug, if relevant.
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Browser console output, server logs, or screenshots. Remove any API keys first.
